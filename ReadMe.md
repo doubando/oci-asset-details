@@ -29,12 +29,20 @@ below sample configuration file
 #### Content:  
 
 `[DEFAULT]  
+
 user=<user_ocid>  
+
 fingerprint=<user_fingerprint>  
+
 tenancy=<tenant_ocid>  
+
 region=<region>  
+
 key_file=./auth/<path_to_private_key_file>  
-tenant_name=<tenant_name>  `
+
+tenant_name=<tenant_name>  `  
+
+
 
 2- Put API authentication in auth directory or any other directory make sure to point to in configuration file using "key_file" parameter  
 
