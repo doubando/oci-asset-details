@@ -1,0 +1,10 @@
+backup
+Versions
+auth/*
+Json/*.json
+conf/*.conf
+backup/*
+versions.info
+**/pem
+*.csv
+**/csv
