@@ -24,9 +24,7 @@ Example, oci.conf, tenant.conf
 
 below sample configuration file  
 
-#### FileName: oci.conf  
-
-#### Content:  
+#### FileName: oci.conf
 
 #### Content:  
 
