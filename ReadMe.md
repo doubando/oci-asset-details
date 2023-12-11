@@ -43,7 +43,7 @@ tenant_name=<tenant_name>
 #### Output:  
 
 output file is generated as csv file in the same script directory  
-`<tenantname>.instance_details.csn `  
+`<tenantname>.instance_details.csv `  
 
 #### Versions:  
 
