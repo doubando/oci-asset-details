@@ -1,5 +1,7 @@
 # **Oracle Cloud Instance Inventory**  
 
+ Python script to automate the process of gathering detailed information from Oracle Cloud Infrastructure (OCI) involves a series of steps to interact with OCI's comprehensive cloud services. This script primarily focuses on iterating through OCI compartments to extract vital details of compute instances, such as their names, IDs, and states. Leveraging OCI's Python SDK, the script authenticates and connects to the cloud environment, retrieves a list of compartments, and subsequently fetches information about instances within these compartments. Once the data is collected, the script utilizes libraries like Pandas to format and organize this information into a structured and readable format. Finally, the data is exported into an Excel sheet, offering a convenient and efficient way to analyze and store the instance details from various compartments in OCI. This automation not only streamlines the process of data retrieval and documentation but also significantly enhances the efficiency of cloud resource management and oversight.
+
 #### Preliminary Steps:  
 
 Install Python SDK: Run   
