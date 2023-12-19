@@ -7,7 +7,7 @@
 Install Python SDK: Run   
 `pip install oci prettytable glob  `   
 
-#### The script will include the following output details:  
+#### main.py output details:  
 1. [x] display_name
 2. [x] compartment_name
 3. [x] Private IP [List]
@@ -18,6 +18,23 @@ Install Python SDK: Run
 8. [x] State (Running or Stopped)
 9. [x] OCPU
 10. [x] Memory
+
+#### network.py output details:  Consists of two output files
+A- vcn_details.csv
+Compartment,VCN Name,CIDR Block,DNS Domain,lifecycle
+1. [x] Compartment
+2. [x] VCN Name
+3. [x] CIDR Block
+4. [x] DNS Domain
+5. [x] Lifecycle State
+
+B- subnet_details.csv
+1. [x] VCN Name
+2. [x] Subnet Name
+3. [x] CIDR Block
+4. [x] Route Table Name
+5. [x] Security List Name
+6. [x] Virtual Router IP
 
 #### Setup:  
 
@@ -46,6 +63,9 @@ output file is generated as csv file in the same script directory
 `<tenantname>.instance_details.csv `  
 
 #### Versions:  
+v.0.7
+* ✓ included network.py script that extracts Subnet and Network details on oracle cloud 
+* ✓ updated ReadMe
 
 v.0.6  
 * ✓ Update all private IP if multiple VNICs assigned to the instance  
