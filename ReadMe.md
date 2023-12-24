@@ -1,4 +1,4 @@
-# **Oracle Cloud Instance Inventory**  
+# **Oracle Cloud Resource Inventory**  
 
  Python script to automate the process of gathering detailed information from Oracle Cloud Infrastructure (OCI) involves a series of steps to interact with OCI's comprehensive cloud services. This script primarily focuses on iterating through OCI compartments to extract vital details of compute instances, such as their names, IDs, and states. Leveraging OCI's Python SDK, the script authenticates and connects to the cloud environment, retrieves a list of compartments, and subsequently fetches information about instances within these compartments. Once the data is collected, the script utilizes libraries like Pandas to format and organize this information into a structured and readable format. Finally, the data is exported into an Excel sheet, offering a convenient and efficient way to analyze and store the instance details from various compartments in OCI. This automation not only streamlines the process of data retrieval and documentation but also significantly enhances the efficiency of cloud resource management and oversight.
 
@@ -7,7 +7,7 @@
 Install Python SDK: Run   
 `pip install oci prettytable glob  `   
 
-#### main.py output details:  
+#### instance_details.py output details:  
 1. [x] display_name
 2. [x] compartment_name
 3. [x] Private IP [List]
@@ -63,12 +63,16 @@ output file is generated as csv file in the same script directory
 `<tenantname>.instance_details.csv `  
 
 #### Versions:  
+
+v.0.7.1
+* extract tenant name from tenant id (no need to provide tenant name in conf file)
+* renamed instance script from main.py to instance_details.py
 v.0.7
 * ✓ included network.py script that extracts Subnet and Network details on oracle cloud 
 * ✓ updated ReadMe
-
 v.0.6  
 * ✓ Update all private IP if multiple VNICs assigned to the instance  
 * ✓ Add Public IP if VNIC is assigned  
 * ✓ Add Subnet and Network information from VNIC  
 * ✓ Rename Output CSV to include Tenant name.  
+

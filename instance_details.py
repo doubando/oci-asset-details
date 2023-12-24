@@ -23,10 +23,12 @@ else:
     config = oci.config.from_file(conf_files[0])
     compute_client = oci.core.ComputeClient(config)
     network_client = oci.core.VirtualNetworkClient(config)
-    ociidentity = oci.identity.IdentityClient(config)
+    identity_client = oci.identity.IdentityClient(config)
 
-tenant_name = config['tenant_name']
 tenant_id = config['tenancy']
+# Get Tenant Name from Tenant ID
+get_tenancy_response = identity_client.get_tenancy(tenancy_id=tenant_id).data
+tenant_name = get_tenancy_response.name
 
 # Read All Compartements, Write the output into list of JSON object in compartment.json file
 def ReadAllCompartments(tenancy,login,tenantName):
@@ -89,7 +91,7 @@ table.field_names = ["Instance Name", "Compartment", "Private IP", "Public_IP", 
                      "Fault Domain", "State", "OCPU", "Memory"]
 
 # Get All Compartments and save into Json <tenant-name>-compartment.json
-allcompartments = ReadAllCompartments(tenant_id, ociidentity, tenant_name)
+allcompartments = ReadAllCompartments(tenant_id, identity_client, tenant_name)
 
 # Loop for all compartment
 for compartment in allcompartments:
