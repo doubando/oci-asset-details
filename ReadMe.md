@@ -18,6 +18,8 @@ Install Python SDK: Run
 8. [x] State (Running or Stopped)
 9. [x] OCPU
 10. [x] Memory
+11. [x] Boot Volume Size (GB)
+12. [x] Boot Volume Performance
 
 #### network.py output details:  Consists of two output files
 A- vcn_details.csv
@@ -52,25 +54,35 @@ user=<user_ocid>
 fingerprint=<user_fingerprint>  
 tenancy=<tenant_ocid>  
 region= <oci_region>  
-key_file=./auth/<path_to_private_key_file>  
-tenant_name=<tenant_name>  
+key_file=./auth/<path_to_private_key_file>
 
 2- Put API authentication in auth directory or any other directory make sure to point to in configuration file using "key_file" parameter  
 
 #### Output:  
 
 output file is generated as csv file in the same script directory  
-`<tenantname>.instance_details.csv `  
+  instance_details.py         -->     `<tenantname>`.instance_details.csv      
+  network.py                  -->     `<tenantname>`.vcn_details.csv            
+  network.py                  -->     `<tenantname>`.subnet_details.csv          
+ 
+ 
+### Versions:
 
-#### Versions:  
+##### v.0.7.2
+* Added Boot Volume size (GB) and Performance (Balanced, High Performance, Ultra High Performance)
+* Fixed README
 
-v.0.7.1
+##### v.0.7.1
 * extract tenant name from tenant id (no need to provide tenant name in conf file)
-* renamed instance script from main.py to instance_details.py
-v.0.7
+* renamed instance script from main.py to instance_details.py  
+
+##### v.0.7  
+
 * ✓ included network.py script that extracts Subnet and Network details on oracle cloud 
-* ✓ updated ReadMe
-v.0.6  
+* ✓ updated ReadMe  
+
+##### v.0.6    
+
 * ✓ Update all private IP if multiple VNICs assigned to the instance  
 * ✓ Add Public IP if VNIC is assigned  
 * ✓ Add Subnet and Network information from VNIC  
