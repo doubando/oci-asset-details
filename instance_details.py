@@ -24,6 +24,7 @@ else:
     compute_client = oci.core.ComputeClient(config)
     network_client = oci.core.VirtualNetworkClient(config)
     identity_client = oci.identity.IdentityClient(config)
+    blockstorage_client = oci.core.BlockstorageClient(config)
 
 tenant_id = config['tenancy']
 # Get Tenant Name from Tenant ID
@@ -46,6 +47,26 @@ def ReadAllCompartments(tenancy,login,tenantName):
             iteration+=1
         comp_file.write("]")
     return compartmentlist.data
+# Function Get Boot volume size from boot volume id
+def get_boot_volume(instance_id,compartment_id,instance_av):
+    list_boot_volume_attachments_response = compute_client.list_boot_volume_attachments(
+        availability_domain=instance_av,
+        compartment_id=compartment_id,
+        instance_id=instance_id).data
+    get_boot_volume_response = blockstorage_client.get_boot_volume(
+        boot_volume_id=list_boot_volume_attachments_response[0].boot_volume_id).data
+    return get_boot_volume_response
+
+def get_performance_description(performance_value):
+    # Check for specific performance levels
+    if performance_value == 10:
+        return "Balanced"
+    elif performance_value == 20:
+        return "Higher Performance"
+    elif performance_value >= 30:
+        return "Ultra High Performance"
+    else:
+        return "Unknown"
 
 # Function Get Image Name from Image ID
 def get_image_name(image_ocid):
@@ -88,7 +109,7 @@ def get_vnic_details(vnic_ocid):
 # Set up table headers
 table = PrettyTable()
 table.field_names = ["Instance Name", "Compartment", "Private IP", "Public_IP", "image", "Shape", \
-                     "Fault Domain", "State", "OCPU", "Memory"]
+                     "Fault Domain", "State", "OCPU", "Memory", "Boot_Volume_Size", "Boot_volume_perf"]
 
 # Get All Compartments and save into Json <tenant-name>-compartment.json
 allcompartments = ReadAllCompartments(tenant_id, identity_client, tenant_name)
@@ -117,6 +138,9 @@ for compartment in allcompartments:
                     for vnic_attachment in vnic_data]
         public_ip = [i.public_ip for i in vnic_list]
         private_ip = [i.private_ip for i in vnic_list]
+        boot_volume_details = get_boot_volume(instance.id, compartment_ocid, instance.availability_domain)
+        boot_volume_size = boot_volume_details.size_in_gbs
+        boot_volume_perf = get_performance_description(boot_volume_details.vpus_per_gb)
         try:
         #    print(f"image ID: {instance.image_id}")
             image_name = get_image_name(instance.image_id)
@@ -126,7 +150,7 @@ for compartment in allcompartments:
         table.add_row( [instance.display_name, compartment_name, private_ip, \
                         public_ip, image_name, instance.shape, instance.fault_domain, \
                         instance.lifecycle_state, instance.shape_config.ocpus, \
-                        instance.shape_config.memory_in_gbs])
+                        instance.shape_config.memory_in_gbs, boot_volume_size, boot_volume_perf])
 # Sort table by instance name
 table.sortby = "Instance Name"
 
