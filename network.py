@@ -6,6 +6,13 @@ import oci
 import glob
 import os
 from prettytable import PrettyTable
+import datetime
+
+# Get the current date and time
+now = datetime.datetime.now()
+
+# Format the date and time as DD.MM.YY.HH.mm
+formatted_date = now.strftime("%d.%m.%y.%H.%M")
 
 # Define the path to the 'conf' directory
 conf_directory = './conf'
@@ -150,7 +157,7 @@ for compartment in allcompartments:
 table.sortby = "VCN Name"
 table_subnet.sortby = "VCN Name"
 
-with open(f"./{tenant_name}.vcn_details.csv", "w") as f:
+with open(f"./{tenant_name}.{formatted_date}.vcn_details.csv", "w") as f:
     f.write(table.get_csv_string())
-with open(f"./{tenant_name}.subnet_details.csv", "w") as f:
+with open(f"./{tenant_name}.{formatted_date}.subnet_details.csv", "w") as f:
     f.write(table_subnet.get_csv_string())

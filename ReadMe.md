@@ -1,11 +1,11 @@
-# **Oracle Cloud Resource Inventory**  
+# **Oracle Cloud Asset Inventory**  
 
  Python script to automate the process of gathering detailed information from Oracle Cloud Infrastructure (OCI) involves a series of steps to interact with OCI's comprehensive cloud services. This script primarily focuses on iterating through OCI compartments to extract vital details of compute instances, such as their names, IDs, and states. Leveraging OCI's Python SDK, the script authenticates and connects to the cloud environment, retrieves a list of compartments, and subsequently fetches information about instances within these compartments. Once the data is collected, the script utilizes libraries like Pandas to format and organize this information into a structured and readable format. Finally, the data is exported into an Excel sheet, offering a convenient and efficient way to analyze and store the instance details from various compartments in OCI. This automation not only streamlines the process of data retrieval and documentation but also significantly enhances the efficiency of cloud resource management and oversight.
 
 #### Preliminary Steps:  
 
 Install Python SDK: Run   
-`pip install oci prettytable glob  `   
+`pip install oci prettytable glob datetime  `   
 
 #### instance_details.py output details:  
 1. [x] display_name
@@ -20,7 +20,7 @@ Install Python SDK: Run
 10. [x] Memory
 11. [x] Boot Volume Size (GB)
 12. [x] Boot Volume Performance
-
+ 
 #### network.py output details:  Consists of two output files
 A- vcn_details.csv
 Compartment,VCN Name,CIDR Block,DNS Domain,lifecycle
@@ -61,12 +61,18 @@ key_file=./auth/<path_to_private_key_file>
 #### Output:  
 
 output file is generated as csv file in the same script directory  
-  instance_details.py         -->     `<tenantname>`.instance_details.csv      
-  network.py                  -->     `<tenantname>`.vcn_details.csv            
-  network.py                  -->     `<tenantname>`.subnet_details.csv          
+  instance_details.py         -->     `<tenantname>`.instance_details.`<date>`.csv      
+  network.py                  -->     `<tenantname>`.vcn_details.`<date>`.csv            
+  network.py                  -->     `<tenantname>`.subnet_details.`<date>`.csv          
  
  
 ### Versions:
+
+##### v.0.7.3
+* Added Oracle Base Database System (PaaS) to the Asset List
+* Added Data and Time to output files
+* removed extra un-needed variables
+* updated gitignore
 
 ##### v.0.7.2
 * Added Boot Volume size (GB) and Performance (Balanced, High Performance, Ultra High Performance)

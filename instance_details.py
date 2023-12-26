@@ -5,7 +5,14 @@ import pathlib
 import oci
 import glob
 import os
+import datetime
 from prettytable import PrettyTable
+
+# Get the current date and time
+now = datetime.datetime.now()
+
+# Format the date and time as DD.MM.YY.HH.mm
+formatted_date = now.strftime("%d.%m.%y.%H.%M")
 
 # Define the path to the 'conf' directory
 conf_directory = './conf'
@@ -25,6 +32,7 @@ else:
     network_client = oci.core.VirtualNetworkClient(config)
     identity_client = oci.identity.IdentityClient(config)
     blockstorage_client = oci.core.BlockstorageClient(config)
+    database_client = oci.database.DatabaseClient(config)
 
 tenant_id = config['tenancy']
 # Get Tenant Name from Tenant ID
@@ -57,6 +65,12 @@ def get_boot_volume(instance_id,compartment_id,instance_av):
         boot_volume_id=list_boot_volume_attachments_response[0].boot_volume_id).data
     return get_boot_volume_response
 
+# Function Get Database Base Systems
+def get_base_databases(compartment_id):
+    get_base_databases_response = database_client.list_db_systems(
+        compartment_id=compartment_id).data
+    return get_base_databases_response
+
 def get_performance_description(performance_value):
     # Check for specific performance levels
     if performance_value == 10:
@@ -77,13 +91,11 @@ def get_image_name(image_ocid):
 
 # Function to get vnic ID from instance ocid and compartment ocid
 def get_vnic_id(instance_ocid, compartment_ocid):
-    instance_ocid_var = instance_ocid
-    compartment_ocid_var = compartment_ocid
     list_vnic_attachments_response = compute_client.list_vnic_attachments(
-        compartment_id=compartment_ocid_var,
-        instance_id=instance_ocid_var,
-        limit=10 )
-    return list_vnic_attachments_response.data
+        compartment_id=compartment_ocid,
+        instance_id=instance_ocid,
+        limit=10 ).data
+    return list_vnic_attachments_response
 
 # Function to get vnic details from vnic ocid
 def get_vnic_details(vnic_ocid):
@@ -126,6 +138,20 @@ for compartment in allcompartments:
     if compartment.lifecycle_state == "DELETED":
         print(f"Compartment Deleted : {compartment.name}")
         continue
+    # Check Base Database Systems in Compartment
+    base_databases=get_base_databases(compartment_ocid)
+    if len(base_databases) == 0:
+        pass
+    else:
+        for database in base_databases:
+            list_db_nodes_response = database_client.list_db_nodes(compartment_id=compartment_ocid,db_system_id=database.id).data
+            for node in list_db_nodes_response:
+                get_db_network_details = network_client.get_vnic(node.vnic_id).data
+                table.add_row( [database.display_name, compartment_name, get_db_network_details.private_ip, \
+                            "N/A", f'Oracle Database Base System {database.version}', database.shape, node.fault_domain, \
+                            node.lifecycle_state, node.cpu_core_count, \
+                            node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A"])
+
     # Retrieve list of instances
     instances = compute_client.list_instances(compartment_id=compartment_ocid).data
     # If instances list is empty, skip to next compartment
@@ -159,5 +185,5 @@ table.sortby = "Instance Name"
 
 # Print table and export to CSV
 print(table)
-with open(f"./{tenant_name}.instance_details.csv", "w") as f:
+with open(f"./{tenant_name}.instance_details.{formatted_date}.csv", "w") as f:
     f.write(table.get_csv_string())
