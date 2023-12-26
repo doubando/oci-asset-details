@@ -67,6 +67,9 @@ output file is generated as csv file in the same script directory
  
  
 ### Versions:
+##### v.0.7.4
+* Added MSSQL to the Asset List
+* updated conf/ReadMe.md
 
 ##### v.0.7.3
 * Added Oracle Base Database System (PaaS) to the Asset List

@@ -12,5 +12,4 @@ user=<user_ocid>
 fingerprint=<user_fingerprint>  
 tenancy=<tenant_ocid>  
 region= <oci_region>  
-key_file=./auth/<path_to_private_key_file>  
-tenant_name=<tenant_name>   
+key_file=./auth/<path_to_private_key_file>
