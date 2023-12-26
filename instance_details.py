@@ -33,6 +33,7 @@ else:
     identity_client = oci.identity.IdentityClient(config)
     blockstorage_client = oci.core.BlockstorageClient(config)
     database_client = oci.database.DatabaseClient(config)
+    mysql_client = oci.mysql.DbSystemClient(config)
 
 tenant_id = config['tenancy']
 # Get Tenant Name from Tenant ID
@@ -71,6 +72,10 @@ def get_base_databases(compartment_id):
         compartment_id=compartment_id).data
     return get_base_databases_response
 
+# Function Get MySQL Database
+def get_mysql_databases(compartment_id):
+    list_db_systems_response = mysql_client.list_db_systems(compartment_id=compartment_id).data
+    return list_db_systems_response
 def get_performance_description(performance_value):
     # Check for specific performance levels
     if performance_value == 10:
@@ -151,6 +156,20 @@ for compartment in allcompartments:
                             "N/A", f'Oracle Database Base System {database.version}', database.shape, node.fault_domain, \
                             node.lifecycle_state, node.cpu_core_count, \
                             node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A"])
+    # Check MySQL Database in Compartment
+    mysql_databases=get_mysql_databases(compartment_ocid)
+    if len(mysql_databases) == 0:
+        pass
+    else:
+        for mysql in mysql_databases:
+            get_db_system_response = mysql_client.get_db_system(db_system_id=mysql.id).data
+            if mysql.lifecycle_state == "DELETED":
+                pass
+            else:
+                table.add_row([get_db_system_response.display_name, compartment_name, get_db_system_response.ip_address, \
+                               "N/A", f'MySQL Database System {mysql.mysql_version}', get_db_system_response.shape_name, get_db_system_response.current_placement.fault_domain, \
+                               get_db_system_response.lifecycle_state, "N/A", \
+                               "N/A", get_db_system_response.data_storage_size_in_gbs, "N/A"])
 
     # Retrieve list of instances
     instances = compute_client.list_instances(compartment_id=compartment_ocid).data
