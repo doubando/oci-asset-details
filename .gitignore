@@ -8,4 +8,5 @@ versions.info
 **/pem
 *.csv
 **/csv
+.DS_Store
 test.py
