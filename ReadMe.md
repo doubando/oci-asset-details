@@ -66,24 +66,30 @@ output file is generated as csv file in the same script directory
   network.py                  -->     `<tenantname>`.subnet_details.`<date>`.csv          
  
  
-### Versions:
+### Versions:  
+  
+##### v.0.7.5
+* ✓ Excluded "DELETED" or "FAILED" for Oracle DB Base Systems and MySQL databases status from the report. 
+* ✓ Fixed ReadMe.md for MySQL
+* ✓ Tested Script with Python 3.11 without issues
+
 ##### v.0.7.4
-* Added MSSQL to the Asset List
-* updated conf/ReadMe.md
+* ✓ Added MySQL database systems (PaaS) to the Asset List
+* ✓ updated conf/ReadMe.md
 
 ##### v.0.7.3
-* Added Oracle Base Database System (PaaS) to the Asset List
-* Added Data and Time to output files
-* removed extra un-needed variables
-* updated gitignore
+* ✓ Added Oracle Base Database System (PaaS) to the Asset List
+* ✓ Added Data and Time to output files
+* ✓ removed extra un-needed variables
+* ✓ updated gitignore
 
 ##### v.0.7.2
-* Added Boot Volume size (GB) and Performance (Balanced, High Performance, Ultra High Performance)
-* Fixed README
+* ✓ Added Boot Volume size (GB) and Performance (Balanced, High Performance, Ultra High Performance)
+* ✓ Fixed README
 
 ##### v.0.7.1
-* extract tenant name from tenant id (no need to provide tenant name in conf file)
-* renamed instance script from main.py to instance_details.py  
+* ✓ extract tenant name from tenant id (no need to provide tenant name in conf file)
+* ✓ renamed instance script from main.py to instance_details.py  
 
 ##### v.0.7  
 

@@ -151,11 +151,14 @@ for compartment in allcompartments:
         for database in base_databases:
             list_db_nodes_response = database_client.list_db_nodes(compartment_id=compartment_ocid,db_system_id=database.id).data
             for node in list_db_nodes_response:
-                get_db_network_details = network_client.get_vnic(node.vnic_id).data
-                table.add_row( [database.display_name, compartment_name, get_db_network_details.private_ip, \
-                            "N/A", f'Oracle Database Base System {database.version}', database.shape, node.fault_domain, \
-                            node.lifecycle_state, node.cpu_core_count, \
-                            node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A"])
+                if node.lifecycle_state == "DELETED" or node.lifecycle_state == "FAILED":
+                    pass
+                else:
+                    get_db_network_details = network_client.get_vnic(node.vnic_id).data
+                    table.add_row( [database.display_name, compartment_name, get_db_network_details.private_ip, \
+                                "N/A", f'Oracle Database Base System {database.version}', database.shape, node.fault_domain, \
+                                node.lifecycle_state, node.cpu_core_count, \
+                                node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A"])
     # Check MySQL Database in Compartment
     mysql_databases=get_mysql_databases(compartment_ocid)
     if len(mysql_databases) == 0:
@@ -163,7 +166,7 @@ for compartment in allcompartments:
     else:
         for mysql in mysql_databases:
             get_db_system_response = mysql_client.get_db_system(db_system_id=mysql.id).data
-            if mysql.lifecycle_state == "DELETED":
+            if mysql.lifecycle_state == "DELETED" or mysql.lifecycle_state == "FAILED":
                 pass
             else:
                 table.add_row([get_db_system_response.display_name, compartment_name, get_db_system_response.ip_address, \
