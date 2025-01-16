@@ -6,6 +6,7 @@ import oci
 import glob
 import os
 import datetime
+import re
 from prettytable import PrettyTable
 
 # Get the current date and time
@@ -19,7 +20,8 @@ conf_directory = './conf'
 
 # Search for all '.conf' files in the directory
 conf_files = glob.glob(os.path.join(conf_directory, '*.conf'))
-
+# Region Pattern
+region_pattern = r"^[a-zA-Z]{2}-.+-\d+$"
 # Check if more than one .conf file is found
 if len(conf_files) > 1:
     raise Exception("Error: More than one .conf file found in the directory.")
@@ -125,8 +127,8 @@ def get_vnic_details(vnic_ocid):
 
 # Set up table headers
 table = PrettyTable()
-table.field_names = ["Instance Name", "Compartment", "Private IP", "Public_IP", "image", "Shape", \
-                     "Fault Domain", "State", "OCPU", "Memory", "Boot_Volume_Size", "Boot_volume_perf"]
+table.field_names = ["Instance Name", "Region", "Compartment", "Private IP", "Public_IP", "image", "Shape", \
+                     "Fault Domain", "State", "OCPU", "Memory", "Boot_Volume_Size", "Boot_volume_perf", "Block_Volumes_GB", "Created_by"]
 
 # Get All Compartments and save into Json <tenant-name>-compartment.json
 allcompartments = ReadAllCompartments(tenant_id, identity_client, tenant_name)
@@ -149,16 +151,28 @@ for compartment in allcompartments:
         pass
     else:
         for database in base_databases:
+            #print(database)
             list_db_nodes_response = database_client.list_db_nodes(compartment_id=compartment_ocid,db_system_id=database.id).data
             for node in list_db_nodes_response:
                 if node.lifecycle_state == "DELETED" or node.lifecycle_state == "FAILED":
                     pass
                 else:
+                    # print(f"Database Name: {database.display_name}")
+                    # print(f"Database Availability Domain: {re.search(region_pattern, database.availability_domain)}")
+                    # print(f"Database Compartment: {compartment_name}")
+                    # print(f"Database IP Address: {get_db_network_details.private_ip}")
+                    # print(f"Database Version: {database.version}")
+                    # print(f"Database Shape: {database.shape}")
+                    # print(f"Database fault domain: {node.fault_domain}")
+                    # print(f"Database Life cycle: {node.lifecycle_state}")
+                    # print(f"Database cpu core count: {node.cpu_core_count}")
+                    # print(f"Database Memory: {node.memory_size_in_gbs}")
+                    # print(f"Database Data Storage: {database.data_storage_size_in_gbs}")
                     get_db_network_details = network_client.get_vnic(node.vnic_id).data
-                    table.add_row( [database.display_name, compartment_name, get_db_network_details.private_ip, \
+                    table.add_row( [database.display_name, re.search(region_pattern, database.availability_domain), compartment_name, get_db_network_details.private_ip, \
                                 "N/A", f'Oracle Database Base System {database.version}', database.shape, node.fault_domain, \
                                 node.lifecycle_state, node.cpu_core_count, \
-                                node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A"])
+                                node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A", "[]"," "])
     # Check MySQL Database in Compartment
     mysql_databases=get_mysql_databases(compartment_ocid)
     if len(mysql_databases) == 0:
@@ -169,10 +183,10 @@ for compartment in allcompartments:
             if mysql.lifecycle_state == "DELETED" or mysql.lifecycle_state == "FAILED":
                 pass
             else:
-                table.add_row([get_db_system_response.display_name, compartment_name, get_db_system_response.ip_address, \
+                table.add_row([get_db_system_response.display_name, re.search(region_pattern, get_db_system_response.availability_domain), compartment_name, get_db_system_response.ip_address, \
                                "N/A", f'MySQL Database System {mysql.mysql_version}', get_db_system_response.shape_name, get_db_system_response.current_placement.fault_domain, \
                                get_db_system_response.lifecycle_state, "N/A", \
-                               "N/A", get_db_system_response.data_storage_size_in_gbs, "N/A"])
+                               "N/A", get_db_system_response.data_storage_size_in_gbs, "N/A", "[]", " "])
 
     # Retrieve list of instances
     instances = compute_client.list_instances(compartment_id=compartment_ocid).data
@@ -181,6 +195,7 @@ for compartment in allcompartments:
         continue
     # Loop for all instance details
     for instance in instances:
+        #print(instance)
         vnic_data = get_vnic_id(instance.id, compartment_ocid)
         vnic_list = [network_client.get_vnic(vnic_attachment.vnic_id).data
                     for vnic_attachment in vnic_data]
@@ -189,16 +204,28 @@ for compartment in allcompartments:
         boot_volume_details = get_boot_volume(instance.id, compartment_ocid, instance.availability_domain)
         boot_volume_size = boot_volume_details.size_in_gbs
         boot_volume_perf = get_performance_description(boot_volume_details.vpus_per_gb)
+        # Get Block Volume Details
+        block_volumes = []
+        list_volume_attachments_response = compute_client.list_volume_attachments(compartment_id=compartment_ocid,
+                                                                                  instance_id=instance.id).data
+        # print(list_volume_attachments_response)
+        for volume in list_volume_attachments_response:
+            print(f"working on {volume}")
+            if "ocid1.bootvolume." in volume.volume_id:
+                pass
+            else:
+                get_volume_response = blockstorage_client.get_volume(volume_id=volume.volume_id).data
+                block_volumes.append(get_volume_response.size_in_gbs)
         try:
         #    print(f"image ID: {instance.image_id}")
             image_name = get_image_name(instance.image_id)
         except:
             print("Could not get instance image of instance {instance.display_name}")
             image_name = "-"
-        table.add_row( [instance.display_name, compartment_name, private_ip, \
+        table.add_row( [instance.display_name, instance.region, compartment_name, private_ip, \
                         public_ip, image_name, instance.shape, instance.fault_domain, \
                         instance.lifecycle_state, instance.shape_config.ocpus, \
-                        instance.shape_config.memory_in_gbs, boot_volume_size, boot_volume_perf])
+                        instance.shape_config.memory_in_gbs, boot_volume_size, boot_volume_perf, block_volumes, " "])
 # Sort table by instance name
 table.sortby = "Instance Name"
 

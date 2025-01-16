@@ -74,6 +74,7 @@ def get_vcn_details(compartment_id):
 # Get Subnet Details
 def get_subnet_details(config, compartment_id, vcn_ocid):
     subnets = network_client.list_subnets(compartment_id=compartment_id, vcn_id=vcn_ocid).data
+    print(subnets)
     subnet_details = []
     for subnet in subnets:
         details = {
@@ -82,7 +83,9 @@ def get_subnet_details(config, compartment_id, vcn_ocid):
             "CIDR Block": subnet.cidr_block,
             "Route Table OCID": subnet.route_table_id,
             "Security List OCIDs": subnet.security_list_ids,
-            "Virtual Router IP": subnet.virtual_router_ip
+            "Virtual Router IP": subnet.virtual_router_ip,
+            "Prohibit Internet Ingress": subnet.prohibit_internet_ingress,
+            "Prohibit Public IP on VNIC": subnet.prohibit_public_ip_on_vnic
             # Add more attributes as needed
         }
         subnet_details.append(details)
@@ -117,7 +120,7 @@ def get_security_list_name(config, sl_ocid):
 table = PrettyTable()
 table_subnet = PrettyTable()
 table.field_names = ["Compartment","VCN Name", "CIDR Block", "DNS Domain","lifecycle"]
-table_subnet.field_names = ["VCN Name", "Subnet Name", "CIDR Block", "Route Table", "Security List", "Virtual Router IP"]
+table_subnet.field_names = ["VCN Name", "Subnet Name", "CIDR Block", "Route Table", "Security List", "Virtual Router IP", "Prohibit Internet Ingress", "Prohibit Public IP on VNIC"]
 
 # Get All Compartments and save into Json <tenant-name>-compartment.json
 allcompartments = ReadAllCompartments(tenant_id, ociidentity, tenant_name)
@@ -150,7 +153,9 @@ for compartment in allcompartments:
                        subnet['CIDR Block'],\
                        route_table_name, \
                        security_list_name, \
-                       subnet['Virtual Router IP'] \
+                       subnet['Virtual Router IP'], \
+                       subnet['Prohibit Internet Ingress'], \
+                       subnet['Prohibit Public IP on VNIC']
                         ])
 
 # Sort table by vcn name
