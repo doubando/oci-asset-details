@@ -8,12 +8,6 @@ import os
 import datetime
 from prettytable import PrettyTable
 
-# Get the current date and time
-now = datetime.datetime.now()
-
-# Format the date and time as DD.MM.YY.HH.mm
-formatted_date = now.strftime("%d.%m.%y.%H.%M")
-
 # Define the path to the 'conf' directory
 conf_directory = './conf'
 
@@ -126,7 +120,7 @@ def get_vnic_details(vnic_ocid):
 # Set up table headers
 table = PrettyTable()
 table.field_names = ["Instance Name", "Compartment", "Private IP", "Public_IP", "image", "Shape", \
-                     "Fault Domain", "State", "OCPU", "Memory", "Boot_Volume_Size", "Boot_volume_perf"]
+                     "Fault Domain", "State", "OCPU", "Memory", "Boot_Volume_Size", "Boot_volume_perf", "Block_Volumes_GB"]
 
 # Get All Compartments and save into Json <tenant-name>-compartment.json
 allcompartments = ReadAllCompartments(tenant_id, identity_client, tenant_name)
@@ -158,7 +152,7 @@ for compartment in allcompartments:
                     table.add_row( [database.display_name, compartment_name, get_db_network_details.private_ip, \
                                 "N/A", f'Oracle Database Base System {database.version}', database.shape, node.fault_domain, \
                                 node.lifecycle_state, node.cpu_core_count, \
-                                node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A"])
+                                node.memory_size_in_gbs, database.data_storage_size_in_gbs, "N/A","N/A"])
     # Check MySQL Database in Compartment
     mysql_databases=get_mysql_databases(compartment_ocid)
     if len(mysql_databases) == 0:
@@ -172,7 +166,7 @@ for compartment in allcompartments:
                 table.add_row([get_db_system_response.display_name, compartment_name, get_db_system_response.ip_address, \
                                "N/A", f'MySQL Database System {mysql.mysql_version}', get_db_system_response.shape_name, get_db_system_response.current_placement.fault_domain, \
                                get_db_system_response.lifecycle_state, "N/A", \
-                               "N/A", get_db_system_response.data_storage_size_in_gbs, "N/A"])
+                               "N/A", get_db_system_response.data_storage_size_in_gbs, "N/A", "N/A"])
 
     # Retrieve list of instances
     instances = compute_client.list_instances(compartment_id=compartment_ocid).data
@@ -189,6 +183,13 @@ for compartment in allcompartments:
         boot_volume_details = get_boot_volume(instance.id, compartment_ocid, instance.availability_domain)
         boot_volume_size = boot_volume_details.size_in_gbs
         boot_volume_perf = get_performance_description(boot_volume_details.vpus_per_gb)
+        # Get Block Volume Details
+        block_volumes = []
+        list_volume_attachments_response = compute_client.list_volume_attachments(compartment_id=compartment_ocid,
+                                                                                  instance_id=instance.id).data
+        for volume in list_volume_attachments_response:
+            get_volume_response = blockstorage_client.get_volume(volume_id=volume.volume_id).data
+            block_volumes.append(get_volume_response.size_in_gbs)
         try:
         #    print(f"image ID: {instance.image_id}")
             image_name = get_image_name(instance.image_id)
@@ -198,7 +199,7 @@ for compartment in allcompartments:
         table.add_row( [instance.display_name, compartment_name, private_ip, \
                         public_ip, image_name, instance.shape, instance.fault_domain, \
                         instance.lifecycle_state, instance.shape_config.ocpus, \
-                        instance.shape_config.memory_in_gbs, boot_volume_size, boot_volume_perf])
+                        instance.shape_config.memory_in_gbs, boot_volume_size, boot_volume_perf, block_volumes])
 # Sort table by instance name
 table.sortby = "Instance Name"
 

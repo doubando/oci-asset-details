@@ -4,8 +4,32 @@
 
 #### Preliminary Steps:  
 
-Install Python SDK: Run   
-`pip install oci prettytable glob datetime  `   
+A- Install Python SDK: Run   
+`pip3 install oci prettytable glob2 datetime os pandas`    
+or   
+`pip3 install -r requirements.txt  ` 
+
+B- put OCI configuration file under configuration directory "conf/anyname.conf"
+Create OCI Configuration file inside conf directory, the script will accept any name that ends up with .conf
+Example, oci.conf, tenant.conf  
+
+below sample configuration file   
+
+#### FileName: oci.conf  
+
+#### Content:    
+
+[DEFAULT]  
+user=<user_ocid>  
+fingerprint=<user_fingerprint>  
+tenancy=<tenant_ocid>  
+region= <oci_region>  
+key_file=./auth/<path_to_private_key_file>
+
+Note: Put API private key under auth directory or any other directory make sure to point to in configuration file using "key_file" parameter  
+   
+#### Execution: 
+  python3 main.py   
 
 #### instance_details.py output details:  
 1. [x] display_name
@@ -38,26 +62,6 @@ B- subnet_details.csv
 5. [x] Security List Name
 6. [x] Virtual Router IP
 
-#### Setup:  
-
-1- Create OCI Configuration file inside conf directory, the script will accept any name that ends up with .conf
-Example, oci.conf, tenant.conf  
-
-below sample configuration file  
-
-#### FileName: oci.conf
-
-#### Content:  
-
-[DEFAULT]  
-user=<user_ocid>  
-fingerprint=<user_fingerprint>  
-tenancy=<tenant_ocid>  
-region= <oci_region>  
-key_file=./auth/<path_to_private_key_file>
-
-2- Put API authentication in auth directory or any other directory make sure to point to in configuration file using "key_file" parameter  
-
 #### Output:  
 
 output file is generated as csv file in the same script directory  
@@ -67,6 +71,14 @@ output file is generated as csv file in the same script directory
  
  
 ### Versions:  
+
+##### v.1.0.0
+* ✓ changed prettytables to Pandas for better analysis
+* ✓ changed output csv file to excel xlsx
+* ✓ combined all output details for VCNs and Subnets to same excel file that include different sheets.
+* ✓ instance_details.py included a list of block volumes sizes for each instances.
+* ✓ network_details.py included number of subnets in each VCN.
+* ✓ 
   
 ##### v.0.7.5
 * ✓ Excluded "DELETED" or "FAILED" for Oracle DB Base Systems and MySQL databases status from the report. 

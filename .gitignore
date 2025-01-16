@@ -6,7 +6,8 @@ conf/*.conf
 backup/*
 versions.info
 **/pem
+*.xls
+*.xlsx
 *.csv
-**/csv
 .DS_Store
 test.py
